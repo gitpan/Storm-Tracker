@@ -2,7 +2,7 @@ use lib "./t";
 use ExtUtils::TBone;
 use strict;
 
-use Geo::Storm_Tracker;
+use Geo::StormTracker;
 
 #Create checker
 my $T=ExtUtils::TBone->typical();

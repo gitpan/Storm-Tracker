@@ -1,20 +1,20 @@
-package Geo::Storm_Tracker::Data;
+package Geo::StormTracker::Data;
 
 use Carp;
-use Geo::Storm_Tracker::Parser;
+use Geo::StormTracker::Parser;
 use IO::File;
 use IO::Dir;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 #------------------------------------------------------------------------------
 sub new {
 	my $self=shift;
 	my $path=shift;
 
-	my ($msg,$success)=undef;
+	my ($msg,$success, $io)=undef;
 	my $anon_HR={};
 
 	#Check to see if the path was given
@@ -37,10 +37,38 @@ sub new {
 	}#if
 	
 	#anytime a new data object is created it should contain a
-	#the path for the weather event in question.
+	#the path, year, region, and event number for the weather event in question.
+
+	$io=IO::File->new();
+	unless ($io->open("<${path}region")){
+		$msg="Couldn't open the ${path}region file!";
+		carp $msg, "\n";
+		return (undef, $msg);
+	}#unless
+	$anon_HR->{'region'}=$io->getline();
+	chomp $anon_HR->{'region'};
+	$io->close();
+	
+	unless ($io->open("<${path}year")){
+		$msg="Couldn't open the ${path}year file!";
+		carp $msg, "\n";
+		return (undef, $msg);
+	}#unless
+	$anon_HR->{'year'}=$io->getline();
+	chomp $anon_HR->{'year'};
+	$io->close();
+	
+	unless ($io->open("<${path}event_number")){
+		$msg="Couldn't open the ${path}event_number file!";
+		carp $msg, "\n";
+		return (undef, $msg);
+	}#unless
+	$anon_HR->{'event_number'}=$io->getline();
+	chomp $anon_HR->{'event_number'};
+	$io->close();
 
 	$anon_HR->{'path'} = $path;
-	bless $anon_HR, 'Geo::Storm_Tracker::Data';
+	bless $anon_HR, 'Geo::StormTracker::Data';
 
 	return ($anon_HR, undef);
 
@@ -49,17 +77,50 @@ sub new {
 sub shiny_new {
         my $self=shift;
         my $path=shift;
+	my $region=shift;
+	my $year=shift;
+	my $event_num=shift;
  
-        my ($msg,$success)=undef;
+        my ($msg,$success, $io)=undef;
         my $anon_HR={};
  
         #Check to see if the path was given
         unless (defined($path)){
-                $msg = "The mandatory path argument was not provided to the new method!";
+                $msg = "The mandatory path argument was not provided to the shiny_new method!";
                 carp $msg,"\n";
                 return (undef,$msg);
-        }
- 
+        }#unless
+
+	#Check the region argument.
+	unless (
+		(defined $region) and
+		($region =~ m!^\w{2}$!)
+		){
+		$msg = "The shiny_new method's mandatory region argument was not provided or failed the syntax check!";
+		carp $msg,"\n";
+                return (undef,$msg);
+	}#unless
+	
+	#Check the year argument.
+	unless (
+		(defined $year) and
+		($year =~ m!^\d{4}$!)
+		){
+		$msg = "The shiny_new method's mandatory year argument was not provided or was not a 4 digit number!";
+		carp $msg,"\n";
+                return (undef,$msg);
+	}#unless
+	
+	#Check the event_num argument.
+	unless (
+		(defined $event_num) and
+		($event_num =~ m!^\d+$!)
+		){
+		$msg = "The shiny_new method's mandatory event number argument was not provided or was not a number!";
+		carp $msg,"\n";
+                return (undef,$msg);
+	}#unless
+	
         #Make sure the path ends with a single slash.
         $path =~ s!/*$!/!;
  
@@ -68,7 +129,7 @@ sub shiny_new {
 	if (-e $path){
 		$msg="The path already exists.  The shiny_new method always fails in this event!";
 		return (undef,$msg);
-	}
+	}#if
 
         $success=mkdir($path,0776);
         unless ($success) {
@@ -77,21 +138,70 @@ sub shiny_new {
                 carp $msg,"\n";
                 return (undef,$msg);
 	}#unless
+
+	#Write out the region file.
+	$io=IO::File->new();
+	unless ($io->open(">${path}region")){
+		$msg="Could not create a ${path}region file!";
+		$msg.= "  The database is likely in a corrupt state due to this failure!";
+		carp $msg, "\n";
+		return (undef, $msg);
+	}#unless
+	$io->print($region);
+	$io->close();
+
+	#Write out the year file. 
+	unless ($io->open(">${path}year")){
+		$msg="Could not create a ${path}year file!";
+		$msg.= "  The database is likely in a corrupt state due to this failure!";
+		carp $msg, "\n";
+		return (undef, $msg);
+	}#unless
+	$io->print($year);
+	$io->close();
+	
+	#Write out the event_number file. 
+	unless ($io->open(">${path}event_number")){
+		$msg="Could not create a ${path}event_number file!";
+		$msg.= "  The database is likely in a corrupt state due to this failure!";
+		carp $msg, "\n";
+		return (undef, $msg);
+	}#unless
+	$io->print($event_num);
+	$io->close();
  
         #anytime a new data object is created it should contain a
-        #the path for the weather event in question.
+        #the path, region, year, and event_number for the weather event in question.
  
         $anon_HR->{'path'} = $path;
-        bless $anon_HR, 'Geo::Storm_Tracker::Data';
+	$anon_HR->{'region'}=$region;
+	$anon_HR->{'year'}=$year;
+	$anon_HR->{'event_number'}=$event_num;
+        bless $anon_HR, 'Geo::StormTracker::Data';
  
         return ($anon_HR, undef);
-
+ 
 }#shiny_new
 #------------------------------------------------------------------------------
 sub get_path {
 	my $self=shift;
 	return $self->{'path'};
-}#id_string
+}#get_path
+#------------------------------------------------------------------------------
+sub get_region {
+	my $self=shift;
+	return $self->{'region'};
+}#get_region
+#------------------------------------------------------------------------------
+sub get_year {
+	my $self=shift;
+	return $self->{'year'};
+}#get_year
+#------------------------------------------------------------------------------
+sub get_event_number {
+	my $self=shift;
+	return $self->{'event_number'};
+}#get_event_number
 #------------------------------------------------------------------------------
 sub is_active {
 	my $self=shift;
@@ -210,7 +320,7 @@ sub all_advisories {
 
 	@advisory_files=$self->_sorted_advisory_files();
 
-	$parser=Geo::Storm_Tracker::Parser->new();
+	$parser=Geo::StormTracker::Parser->new();
 	
 	foreach $file (@advisory_files){
 		$adv_obj=$parser->read_file($self->{'path'}.$file);
@@ -229,7 +339,7 @@ sub current_advisory {
 	@advisory_files=$self->_sorted_advisory_files();
 	$current_advisory_file=$advisory_files[$#advisory_files];
 	
-	$parser=Geo::Storm_Tracker::Parser->new();
+	$parser=Geo::StormTracker::Parser->new();
 
 	$adv_obj=$parser->read_file($self->{'path'}.$current_advisory_file);
 
@@ -280,7 +390,7 @@ sub advisory_by_number {
 	return undef unless (defined $target_file);
 
 	#parse the file and obtain its advisory object. 
-	$parser=Geo::Storm_Tracker::Parser->new();
+	$parser=Geo::StormTracker::Parser->new();
 
 	$adv_obj=$parser->read_file($self->{'path'}.$target_file);
 
@@ -662,23 +772,22 @@ __END__
 
 =head1 NAME
 
-Geo::Storm_Tracker::Data - The weather event object of the perl Storm-Tracker bundle. 
+Geo::StormTracker::Data - The weather event object of the perl Storm-Tracker bundle. 
 
 =head1 SYNOPSIS
 
-	use Geo::Storm_Tracker::Data;
+	use Geo::StormTracker::Data;
 
         #The only argument is the path for the data files of
 	#this new data object.
         #If the directory does not exist it will fail.
 
-	($data_object,$error)=Geo::Storm_Tracker::Data->new('/data/1999/15');
+	($data_object,$error)=Geo::StormTracker::Data->new('/data/1999/15');
 
-	#The only argument is the path for the data files of this
-	#shiny new data object.
 	#The shiny_new method expects to create the last directory level of the path.
 	#If the full path already exists it will fail.
-	($data_object,$error)=Geo::Storm_Tracker::Data->shiny_new('/data/1999/15');
+	#The 2nd, 3rd, and 4th arguments are the region code, year, and event number respectively.
+	($data_object,$error)=Geo::StormTracker::Data->shiny_new('/data/1999/15', 'NT', 1999, 15);
 
 	
 	#The insert_advisory method inserts an advisory object
@@ -755,15 +864,30 @@ Geo::Storm_Tracker::Data - The weather event object of the perl Storm-Tracker bu
 	$path=$data_object->get_path();
 
 
+	#Returns the region code corresponding to the data object.
+
+	$region=$data_object->get_region();
+	
+
+	#Returns the year corresponding to the data object.
+
+	$year=$data_object->get_year();
+
+
+	#Returns the event number corresponding to the data object.
+
+	$event_number=$data_object->get_event_number();
+
+
 =head1 DESCRIPTION
 
-The C<Geo::Storm_Tracker::Data> module is a component
+The C<Geo::StormTracker::Data> module is a component
 of the Storm-Tracker perl bundle.  The Storm-Tracker perl bundle
 is designed to track weather events using the national weather advisories.
 The original intent is to track tropical depressions, storms and hurricanes.
-There should be a C<Geo::Storm_Tracker::Data> object for each
-weather event being stored and/or tracked.  The C<Geo::Storm_Tracker::Data>
-objects are managed by C<Geo::Storm_Tracker::Main>.
+There should be a C<Geo::StormTracker::Data> object for each
+weather event being stored and/or tracked.  The C<Geo::StormTracker::Data>
+objects are managed by C<Geo::StormTracker::Main>.
 
 =head1 CONSTRUCTOR
 
@@ -771,7 +895,7 @@ objects are managed by C<Geo::Storm_Tracker::Main>.
 
 =item new (PATHNAME)
 
-Creates a Geo::Storm_Tracker::Data object.
+Creates a Geo::StormTracker::Data object.
 This constructor method returns an array of
 the form (OBJECT,ERROR).  OBJECT being the
 newly created object if successful, and
@@ -789,9 +913,9 @@ one, is to help the caller maintain data integrity.
 
 =cut
 
-=item shiny_new (PATHNAME)
+=item shiny_new (PATHNAME, REGION, YEAR, EVENT_NUMBER)
 
-Creates a Geo::Storm_Tracker::Data object.
+Creates a Geo::StormTracker::Data object.
 This constructor method returns an array of
 the form (OBJECT,ERROR).  OBJECT being the
 newly created object if successful, and
@@ -816,6 +940,14 @@ the OBJECT returned is defined.
 The motivation for having two constructor methods instead of
 one, is to help the caller maintain data integrity.
 
+The mandatory REGION, YEAR, and EVENT_NUMBER will be
+persistently stored within the Geo::StormTracker::Data
+object.  Their values can be accessed via the
+get_region, get_year, and get_event_number methods
+of Geo::StormTracker::Data objects.  The REGION, YEAR,
+and EVENT_NUMBER are not implicitly related to the
+PATH in any way.
+
 =cut
 
 =back
@@ -827,8 +959,8 @@ one, is to help the caller maintain data integrity.
 
 =item insert_advisory (ADVISORY_OBJECT)
 
-Attempts to insert a C<Geo::Storm_Tracker::Advisory>
-object into the C<Geo::Storm_Tracker::Data>
+Attempts to insert a C<Geo::StormTracker::Advisory>
+object into the C<Geo::StormTracker::Data>
 object being referenced.
 
 The method returns an array of the form (SUCCESS,ERROR).
@@ -847,11 +979,11 @@ returns a position array.
  
 The position array specifies the longitude
 and latitude of the most recent weather advisory
-available for this C<Geo::Storm_Tracker::Data> object.
+available for this C<Geo::StormTracker::Data> object.
 The position array is of the form
 (LONGITUDE,N or S,LATITUDE, W or E).
 
-If the C<Geo::Storm_Tracker::Data> object being
+If the C<Geo::StormTracker::Data> object being
 referenced contains no advisories at all the
 return value will be undefined.
 
@@ -868,7 +1000,7 @@ references.
 
 There is a position returned for each
 advisory within the
-C<Geo::Storm_Tracker::Data> object
+C<Geo::StormTracker::Data> object
 being referenced.  The position arrays
 returned are sorted by advisory number
 with the smallest advisory number first.
@@ -881,13 +1013,13 @@ method.
 =item current_advisory
 
 Returns a reference to the
-C<Geo::Storm_Tracker::Advisory>
+C<Geo::StormTracker::Advisory>
 object within the
-C<Geo::Storm_Tracker::Data> object
+C<Geo::StormTracker::Data> object
 that has the greatest advisory
 number.
 
-If the C<Geo::Storm_Tracker::Data>
+If the C<Geo::StormTracker::Data>
 object being referenced contains no
 advisories at all the return value
 will be undefined.
@@ -909,7 +1041,7 @@ method.  The advisory with the
 smallest advisory number will be
 given first.
 
-If the C<Geo::Storm_Tracker::Data>
+If the C<Geo::StormTracker::Data>
 object being referenced contains no
 advisories at all the return value
 will be undefined.
@@ -922,7 +1054,7 @@ object with the same advisory
 number as given by the mandatory
 NUM argument.
 
-If the C<Geo::Storm_Tracker::Data>
+If the C<Geo::StormTracker::Data>
 object being referenced does not
 contain an advisory with the
 requested advisory number the
@@ -934,7 +1066,33 @@ return value will be undefined.
 Returns the path passed to the
 new method upon creation of
 the referenced
-C<Geo::Storm_Tracker::Data>
+C<Geo::StormTracker::Data>
+object.
+
+=item get_region
+
+Returns the region passed to the
+shiny_new method during the first
+creation of the referenced
+C<Geo::StormTracker::Data>
+object.
+
+
+=item get_year
+
+Returns the 4 digit year passed to the
+shiny_new method during the first
+creation of the referenced
+C<Geo::StormTracker::Data>
+object.
+
+
+=item get_event_number
+
+Returns the event number passed to the
+shiny_new method during the first
+creation of the referenced
+C<Geo::StormTracker::Data>
 object.
 
 
@@ -943,7 +1101,7 @@ object.
 When called with a boolean argument
 is_active attempts to define the
 referenced
-C<Geo::Storm_Tracker::Data>
+C<Geo::StormTracker::Data>
 object as active or inactive.
 is_active returns the array
 (SET_TO,ERROR).
@@ -957,7 +1115,7 @@ the reason for the failure.
 When is_active is called without
 an argument it will return the
 current state of the
-C<Geo::Storm_Tracker::Data>
+C<Geo::StormTracker::Data>
 object being referenced.
 
 
@@ -977,9 +1135,9 @@ the weather advisory formats.
  
 =head1 SEE ALSO
 
-Geo::Storm_Tracker::Main
-Geo::Storm_Tracker::Parser
-Geo::Storm_Tracker::Advisory
+Geo::StormTracker::Main
+Geo::StormTracker::Parser
+Geo::StormTracker::Advisory
 
 perl(1).
 

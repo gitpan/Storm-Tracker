@@ -3,7 +3,7 @@ use blib;
 use strict;
 use IO::File;
 use IO::Dir;
-use Geo::Storm_Tracker::Parser;
+use Geo::StormTracker::Parser;
 
 my ($file,$advisory,$dir,$io,$result)=undef;
 my ($parser,$adv_obj)=undef;
@@ -20,7 +20,7 @@ print "files array is: @files\n";
 $dir->close;
 
 #Create a parser object
-$parser=Geo::Storm_Tracker::Parser->new();
+$parser=Geo::StormTracker::Parser->new();
 
 #Loop over each file and print result
 $io=IO::File->new();
@@ -30,7 +30,7 @@ foreach $file (@files){
 	@lines=$io->getlines;
 	$advisory=join('',@lines);
 
-	$parser=Geo::Storm_Tracker::Parser->new();
+	$parser=Geo::StormTracker::Parser->new();
 
 	$adv_obj=$parser->read_data($advisory);
 

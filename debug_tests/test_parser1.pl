@@ -1,12 +1,12 @@
 #!/usr/local/bin/perl -w
 use blib;
 use strict;
-use Geo::Storm_Tracker::Parser;
+use Geo::StormTracker::Parser;
 
 my @lines=<DATA>;
 my $advisory=join('',@lines);
 
-my $parser=Geo::Storm_Tracker::Parser->new();
+my $parser=Geo::StormTracker::Parser->new();
 
 my $adv_obj=$parser->read_data($advisory);
 

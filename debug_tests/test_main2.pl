@@ -3,13 +3,13 @@ use blib;
 use strict;
 use IO::File;
 use IO::Dir;
-use Geo::Storm_Tracker::Main;
+use Geo::StormTracker::Main;
 
 my ($main_obj,$error,$path,$result)=undef;
 #Create a new main_obj 
 $path='/home/newemd/emdjlc/hurricane/Storm-Tracker/database/';
 
-($main_obj,$error)=Geo::Storm_Tracker::Main->new($path);
+($main_obj,$error)=Geo::StormTracker::Main->new($path);
 
 die $error unless (defined $main_obj);
 

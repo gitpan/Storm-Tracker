@@ -3,13 +3,13 @@ use blib;
 use strict;
 use IO::File;
 use IO::Dir;
-use Geo::Storm_Tracker::Parser;
-use Geo::Storm_Tracker::Data;
-use Geo::Storm_Tracker::Main;
+use Geo::StormTracker::Parser;
+use Geo::StormTracker::Data;
+use Geo::StormTracker::Main;
 
 my ($file,$advisory,$dir,$io,$result)=undef;
 my ($parser,$adv_obj)=undef;
-my ($main_obj,$error,$path,$success);
+my ($main_obj,$error,$path, $data_obj, $region_code, $year, $event_num);
 my @lines=();
 my @files=();
 
@@ -23,12 +23,12 @@ print "files array is: @files\n";
 $dir->close;
 
 #Create a parser object
-$parser=Geo::Storm_Tracker::Parser->new();
+$parser=Geo::StormTracker::Parser->new();
 
 #Create a new main_obj 
 #For now ignore the fact that each advisory may go to a different storm
 $path='/home/newemd/emdjlc/hurricane/Storm-Tracker/database/';
-($main_obj,$error)=Geo::Storm_Tracker::Main->new($path);
+($main_obj,$error)=Geo::StormTracker::Main->new($path);
 
 #Loop over each file and print result
 $io=IO::File->new();
@@ -39,25 +39,14 @@ foreach $file (@files){
 	@lines=$io->getlines;
 	$advisory=join('',@lines);
 
-	$parser=Geo::Storm_Tracker::Parser->new();
+	$parser=Geo::StormTracker::Parser->new();
 
 	$adv_obj=$parser->read_data($advisory);
 
 	$io->close();
 
-	($success,$error)=$main_obj->add_advisory($adv_obj,0);
+	($data_obj, $region_code, $year, $event_num, $error)=$main_obj->add_advisory($adv_obj,1);
 
-#	$result=$adv_obj->wmo_header();
-#	if ((defined $result) and (ref $result)){
-#		$result=join('__',@{$result});
-#	}
-#
-#	if (defined($result)){
-#		print "\n------------------\nresult for file $file is: \n",$result;
-#	}
-#	else {
-#		print "\n------------------\nresult for file $file is: undefined\n";
-#	}
 }#foreach
 
 exit;

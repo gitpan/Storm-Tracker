@@ -2,9 +2,10 @@ Changes
 MANIFEST
 Makefile.PL
 README
-lib/Geo/Storm_Tracker/Main.pm
-lib/Geo/Storm_Tracker/Parser.pm
-lib/Geo/Storm_Tracker/Advisory.pm
-lib/Geo/Storm_Tracker/Data.pm
-lib/Geo/Storm_Tracker.pm
+lib/Geo/StormTracker/Main.pm
+lib/Geo/StormTracker/Parser.pm
+lib/Geo/StormTracker/Advisory.pm
+lib/Geo/StormTracker/Data.pm
+lib/Geo/StormTracker.pm
 t/syntax.t
+t/ExtUtils/TBone.pm

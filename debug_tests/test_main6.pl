@@ -1,13 +1,13 @@
 #!/usr/local/bin/perl -w
 use blib;
 use strict;
-use Geo::Storm_Tracker::Main;
+use Geo::StormTracker::Main;
 
 my ($advisory,$parser,$adv_obj,$main_obj, $data_obj, $msg, $success)=undef;
 my ($region, $region_HR)=undef;
 
 
-($main_obj,$msg)=Geo::Storm_Tracker::Main->new('/home/newemd/emdjlc/hurricane/Storm-Tracker/database/');
+($main_obj,$msg)=Geo::StormTracker::Main->new('/home/newemd/emdjlc/hurricane/Storm-Tracker/database/');
 
 die $msg unless (defined $main_obj);
 

@@ -5,7 +5,7 @@ use ExtUtils::MakeMaker;
 #The syntax of this makefile is copied from that of the MIME::Tools distribution.
 WriteMakefile(
     	'NAME'	=> 'Storm-Tracker',
-    	'VERSION_FROM' => 'lib/Geo/Storm_Tracker.pm', # finds $VERSION
+    	'VERSION_FROM' => 'lib/Geo/StormTracker.pm', # finds $VERSION
 	'PREREQ_PM' => {
 			'IO::Dir' => 1.03,
 			'IO::File' => 1.08,

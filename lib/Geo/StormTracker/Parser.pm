@@ -1,15 +1,16 @@
-package Geo::Storm_Tracker::Parser;
+package Geo::StormTracker::Parser;
 use strict;
 use Carp;
+use Time::Local;
 use vars qw($VERSION @ISA);
-use Geo::Storm_Tracker::Advisory;
+use Geo::StormTracker::Advisory;
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 #-------------------------------------------------------------
 sub new {
 	my $HR={};
-	bless $HR,'Geo::Storm_Tracker::Parser';
+	bless $HR,'Geo::StormTracker::Parser';
 	return $HR;
 }#new
 #-------------------------------------------------------------
@@ -47,7 +48,7 @@ sub read_data {
 
 	my ($head,$body)=undef;
 	
-	my $adv_obj=Geo::Storm_Tracker::Advisory->new();
+	my $adv_obj=Geo::StormTracker::Advisory->new();
 	
 	$head=$self->_extract_head($data);
 	$adv_obj->stringify_header($head);
@@ -89,7 +90,7 @@ sub _grab_head_information{
 	my $adv_obj=shift;
 	my $head=shift;
 
-	my ($name,$advisory_number)=undef;
+	my ($name, $advisory_number, $epoch_date)=undef;
 
 	my @head=split("\n",$head);
 	chomp(@head);
@@ -128,9 +129,55 @@ sub _grab_head_information{
 
 	$adv_obj->release_time($head[6]);
 
+	$epoch_date=$self->_extract_epoch_date($head[6]);
+
+	$adv_obj->epoch_date($epoch_date);
+
 	return $adv_obj;
 
 }#_grab_head_information
+#---------------------------------------------------------------
+sub _extract_epoch_date {
+        my $self=shift;
+        my $release_time=shift;
+ 
+        my ($match, $month,$mon,$mday,$year, $time)=undef;
+ 
+        return undef unless (defined $release_time);
+        
+	my %month_hash=(
+                        'JAN'=>0,
+                        'FEB'=>1,
+                        'MAR'=>2,
+                        'APR'=>3,
+                        'MAY'=>4,
+                        'JUN'=>5,
+                        'JUL'=>6,
+                        'AUG'=>7,
+                        'SEP'=>8,
+                        'OCT'=>9,
+                        'NOV'=>10,
+                        'DEC'=>11,
+                        );
+ 
+        $match=($release_time =~ m!\s(\w{3})\s+(\d+)\s+(\d{4})$!i);
+ 
+        if ($match){
+                $month=$1;
+                $mday=$2;
+                $year=$3;
+ 
+                $mon=$month_hash{(uc $month)};
+ 
+                #$time = timegm($sec,$min,$hours,$mday,$mon,$year);
+                $time = timegm(0,0,0,$mday,$mon,$year);
+ 
+                return $time;
+        }
+        else {
+                return undef;
+        }#if/else
+}#_extract_epoch_date
 #---------------------------------------------------------------
 sub _grab_body_information{
         my $self=shift;
@@ -235,16 +282,16 @@ __END__
 
 =head1 NAME
 
-Geo::Storm_Tracker::Parser - Perl extension for Parsing Weather Advisories 
+Geo::StormTracker::Parser - Perl extension for Parsing Weather Advisories 
 
 =head1 SYNOPSIS
 
-	use Geo::Storm_Tracker::Parser;
+	use Geo::StormTracker::Parser;
 
 	#Create a parser object
-	$parser_obj=Geo::Storm_Tracker::Parser->new();
+	$parser_obj=Geo::StormTracker::Parser->new();
 
-	#Parse input and return a Geo::Storm_Tracker::Advisory object.
+	#Parse input and return a Geo::StormTracker::Advisory object.
 	$adv_obj=$parser_obj->read(\*STDIN);
 	
 	#An alternative to the read method above,
@@ -257,47 +304,49 @@ Geo::Storm_Tracker::Parser - Perl extension for Parsing Weather Advisories
 
 =head1 DESCRIPTION
 
-The Geo::Storm_Tracker::Parser module is a component
+The Geo::StormTracker::Parser module is a component
 of the Storm-Tracker perl bundle.  The Storm-Tracker perl
 bundle is designed to track weather events using the
 national weather advisories.  The original intent is to track
 tropical depressions, storms and hurricanes.  The various
-read methods of Geo::Storm_Tracker::Parser take a plain
-text advisory as input and return Geo::Storm_Tracker::Advisory
+read methods of Geo::StormTracker::Parser take a plain
+text advisory as input and return Geo::StormTracker::Advisory
 objects.
 
 =head1 CONSTRUCTOR
 
+=over 4
+
 =item new
 
-Creates a new instance of a Geo::Storm_Tracker::Parser object and
+Creates a new instance of a Geo::StormTracker::Parser object and
 returns a blessed reference to it.
 
+=back
+
 =head1 METHODS
+
+=over 4
 
 =item read (TYPEGLOB_REF)
 
 Reads from the type glob reference passed as an argument and returns
-a Geo::Storm_Tracker::Advisory object if successful.
+a Geo::StormTracker::Advisory object if successful.
 If unsuccessful the method returns an undefined value.
-
-=cut
 
 =item read_data (STRING)
 
 Attempts to parse the advisory text input as a string argument and returns
-a Geo::Storm_Tracker::Advisory object if successful.
+a Geo::StormTracker::Advisory object if successful.
 If unsuccessful the method returns an undefined value.
-
-=cut
 
 =item read_file (STRING)
 
 Reads an advisory saved in a file whose path is passed as a string argument
-and returns a Geo::Storm_Tracker::Advisory object if successful.
+and returns a Geo::StormTracker::Advisory object if successful.
 If unsuccessful the method returns an undefined value.
 
-=cut
+=back
 
 =head1 AUTHOR
 
@@ -313,9 +362,9 @@ the weather advisory formats.
 
 =head1 SEE ALSO
 
-	Geo::Storm_Tracker::Advisory
-	Geo::Storm_Tracker::Main
-	Geo::Storm_Tracker::Data
+	Geo::StormTracker::Advisory
+	Geo::StormTracker::Main
+	Geo::StormTracker::Data
 	perl(1).
 
 =cut

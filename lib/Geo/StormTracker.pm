@@ -1,13 +1,13 @@
-package Geo::Storm_Tracker;
+package Geo::StormTracker;
 
 use strict; 
-use Geo::Storm_Tracker::Main;
-use Geo::Storm_Tracker::Data;
-use Geo::Storm_Tracker::Advisory;
-use Geo::Storm_Tracker::Parser;
+use Geo::StormTracker::Main;
+use Geo::StormTracker::Data;
+use Geo::StormTracker::Advisory;
+use Geo::StormTracker::Parser;
 use vars qw($VERSION);
  
-$VERSION = 0.01;
+$VERSION = 0.02;
  
 #------------------------------
 1;
@@ -15,7 +15,7 @@ __END__
 
 =head1 NAME
 
-Geo::Storm_Tracker - Perl bundle for working with national weather advisories
+Geo::StormTracker - Perl bundle for working with national weather advisories
 
 =cut
 
@@ -24,10 +24,10 @@ Geo::Storm_Tracker - Perl bundle for working with national weather advisories
 See documentation of each module of the bundle.  This currently includes the
 following:
 
-	Geo::Storm_Tracker::Main
-	Geo::Storm_Tracker::Data
-	Geo::Storm_Tracker::Advisory
-	Geo::Storm_Tracker::Parser
+	Geo::StormTracker::Main
+	Geo::StormTracker::Data
+	Geo::StormTracker::Advisory
+	Geo::StormTracker::Parser
 
 =cut
 
@@ -57,10 +57,10 @@ the weather advisory formats.
 =head1 SEE ALSO
 
 
-	Geo::Storm_Tracker::Advisory
-	Geo::Storm_Tracker::Parser
-	Geo::Storm_Tracker::Main
-	Geo::Storm_Tracker::Data
+	Geo::StormTracker::Advisory
+	Geo::StormTracker::Parser
+	Geo::StormTracker::Main
+	Geo::StormTracker::Data
 	perl(1).
 
 =cut 

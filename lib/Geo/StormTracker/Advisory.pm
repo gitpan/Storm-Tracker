@@ -1,14 +1,14 @@
-package Geo::Storm_Tracker::Advisory;
+package Geo::StormTracker::Advisory;
 use Carp;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 #----------------------------------------------------------------------
 sub new {
 	my $HR={};
-	bless $HR,'Geo::Storm_Tracker::Advisory';
+	bless $HR,'Geo::StormTracker::Advisory';
 	return $HR;
 }#new
 #---------------------------------------------------------------------
@@ -47,12 +47,19 @@ sub name {
 	return $self->_muck_with_hash('name',$name);
 }#name
 #---------------------------------------------------------------------
+sub epoch_date {
+	my $self=shift;
+	my $epoch_date=shift;
+
+	return $self->_muck_with_hash('epoch_date',$epoch_date);
+}#epoch_date
+#---------------------------------------------------------------------
 sub event_type {
 	my $self=shift;
 	my $event_type=shift;
 
 	return $self->_muck_with_hash('event_type',$event_type);
-}#name
+}#event_type
 #---------------------------------------------------------------------
 sub advisory_number {
 	my $self=shift;
@@ -151,15 +158,15 @@ __END__
 
 =head1 NAME
 
-Geo::Storm_Tracker::Advisory - The weather advisory object of the perl Storm-Tracker bundle.
+Geo::StormTracker::Advisory - The weather advisory object of the perl Storm-Tracker bundle.
 
 =head1 SYNOPSIS
 
-	use Geo::Storm_Tracker::Advisory;
+	use Geo::StormTracker::Advisory;
 
 	#Create a new advisory object for holding
 	#all the various elements of an advisory.
-        $adv_obj=Storm_Tracker::Advisory->new();
+        $adv_obj=StormTracker::Advisory->new();
       
 	#Return the entire advisory as a string.
 	#Internally calls stringify_header and
@@ -214,6 +221,13 @@ attributes.  It is the role of the caller to keep the content self consistent.
 	#Returns the new release time string.
 	$release_time=$adv_obj->release_time($release_time);
 
+	#Obtain the epoch date in seconds. 
+	$epoch_date=$adv_obj->epoch_date();
+
+	#Change the epoch date.
+	#Returns the new epoch date in seconds.
+	$epoch_date=$adv_obj->epoch_date($epoch_date);
+
 	#Obtain the weather service string.
         $weather_service=$adv_obj->weather_service();
 
@@ -256,15 +270,15 @@ attributes.  It is the role of the caller to keep the content self consistent.
 
 =head1 DESCRIPTION
 
-The Geo::Storm_Tracker::Advisory module is a component of
+The Geo::StormTracker::Advisory module is a component of
 the Storm-Tracker perl bundle.  The Storm-Tracker perl
 bundle is designed to track weather events using the
 national weather advisories.  The original intent is to track
 tropical depressions, storms and hurricanes.  A
-Geo::Storm_Tracker::Advisory object is designed to contain
-everything about a single advisory.  The Geo::Storm_Tracker::Advisory
+Geo::StormTracker::Advisory object is designed to contain
+everything about a single advisory.  The Geo::StormTracker::Advisory
 objects are typically created and populated by the read methods of a 
-Geo::Storm_Tracker::Parser object.
+Geo::StormTracker::Parser object.
 
 
 =head1 CONSTRUCTOR
@@ -275,7 +289,7 @@ Geo::Storm_Tracker::Parser object.
 
 =item new
 
-Creates a C<Geo::Storm_Tracker::Advisory> object and
+Creates a C<Geo::StormTracker::Advisory> object and
 returns a blessed reference to it. 
 
 =back
@@ -347,6 +361,12 @@ Returns a string value.
 
 =cut
 
+=item epoch_date ([STRING])
+
+Returns a string value.
+
+=cut
+
 =item weather_service ([STRING])
 
 Returns a string value.
@@ -395,9 +415,9 @@ the weather advisory formats.
 
 =head1 SEE ALSO
 
-	Geo::Storm_Tracker::Main
-	Geo::Storm_Tracker::Data
-	Geo::Storm_Tracker::Parser
+	Geo::StormTracker::Main
+	Geo::StormTracker::Data
+	Geo::StormTracker::Parser
 	perl(1).
 
 =cut
